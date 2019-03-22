@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   message_generation
+  genmsg
 )
 
 ## System dependencies are found with CMake's conventions
@@ -144,7 +145,7 @@ add_executable(builder src/builder.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies( ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(builder ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(builder ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} state_graph_builder_generate_messages_cpp)
 
 
 ## Specify libraries to link a library or executable target against

@@ -15,8 +15,8 @@ class Builder
   ros::NodeHandle nh;
   ros::NodeHandle nh_private_;
   ros::Publisher pub;
-  //std_msgs::Bool switch_signal;
-  //ros::Subscriber switch_sub;
+  std_msgs::Bool switch_signal;
+  ros::Subscriber switch_sub;
 
   int n;
   int id;// 1 for ugv 0 for uav
@@ -33,7 +33,7 @@ class Builder
   void ugv1_subCallback(const nav_msgs::Odometry::ConstPtr& msgs, const int list_idx);
   void ugv2_subCallback(const geometry_msgs::Twist::ConstPtr& msgs, const int list_idx);
   void uav_subCallback(const geometry_msgs::PointStamped::ConstPtr& msgs, const int list_idx);
-  //void switch_subCallback(const std_msgs::Bool::ConstPtr& msg);
+  void switch_subCallback(const std_msgs::Bool::ConstPtr& msg);
   state_graph_builder::graph msg;
 
 };
@@ -42,10 +42,18 @@ void Builder::ugv1_subCallback(const nav_msgs::Odometry::ConstPtr& msgs, const i
   
 }
 void Builder::ugv2_subCallback(const geometry_msgs::Twist::ConstPtr& msgs, const int list_idx){
-  ROS_INFO("I heard: [%f]", msgs->linear.x);
-  ugv_list2[list_idx].x=msgs->linear.x;
-  ugv_list2[list_idx].y=0.0;
-  ugv_list2[list_idx].z=msgs->angular.z;
+  ROS_INFO("I heard: [%lf]", msgs->linear.x);
+  // ugv_list2[list_idx].x=msgs->linear.x;
+  // ugv_list2[list_idx].y=0.0;
+  // ugv_list2[list_idx].z=msgs->angular.z;
+  
+}
+
+void Callback(const geometry_msgs::Twist::ConstPtr& msgs){//, const int list_idx){
+  ROS_INFO("I heard: [%lf]", msgs->linear.x);
+  // ugv_list2[list_idx].x=msgs->linear.x;
+  // ugv_list2[list_idx].y=0.0;
+  // ugv_list2[list_idx].z=msgs->angular.z;
   
 }
 void Builder::uav_subCallback(const geometry_msgs::PointStamped::ConstPtr& msgs, const int list_idx){
@@ -53,9 +61,9 @@ void Builder::uav_subCallback(const geometry_msgs::PointStamped::ConstPtr& msgs,
   uav_list[list_idx].y = msgs->point.y;
   uav_list[list_idx].z = msgs->point.z;  
 }
-//void Builder::switch_subCallback(const std_msgs::Bool::ConstPtr& msg){
-//  switch_signal.data = msg->data;
-//}
+void Builder::switch_subCallback(const std_msgs::Bool::ConstPtr& msg){
+ switch_signal.data = msg->data;
+}
 
 Builder::Builder()
   :nh_private_("~")
@@ -68,7 +76,6 @@ Builder::Builder()
 
      
      pub=nh.advertise<state_graph_builder::graph>("graph", 50);
-  
 
      ROS_INFO("Switch is True. Ready to record data %d", n);
      for (int i=1; i < n+1; i++){
@@ -77,7 +84,8 @@ Builder::Builder()
 
        
        std::string sub_topic2 = "/ugv" + std::to_string(i) + "/cmd_vel_mux/input/teleop";
-       ugv_sub2.push_back( nh.subscribe<geometry_msgs::Twist>(sub_topic2, 10, boost::bind(&Builder::ugv2_subCallback,this,_1, i)) );
+      
+       ugv_sub2.push_back( nh.subscribe<geometry_msgs::Twist>(sub_topic2, 10, boost::bind(&Builder::ugv2_subCallback,this,_1, i-1)) );
      }
      ROS_INFO("All publisher initialized");
 
@@ -85,20 +93,21 @@ Builder::Builder()
      uint time_count=0;
 
        while(ros::ok()) {
-	 msg.points.clear();
-	 msg.id.clear();
-	 msg.time=time_count;
-	 for (int i=0; i<n; i++){
-	   //msg.points.push_back(uav_list[i]);
-	   msg.points.push_back(ugv_list2[i]);
-	   msg.id.push_back(id);
-	 }
+       	 msg.points.clear();
+       	 msg.id.clear();
+       	 msg.time=time_count;
+       	 for (int i=0; i<n; i++){
+       	   //msg.points.push_back(uav_list[i]);
+       	   msg.points.push_back(ugv_list2[i]);
+       	   msg.id.push_back(id);
+       	 }
 
-	 pub.publish(msg);
+       	 pub.publish(msg);
 	 
           //Delays untill it is time to send another message
-	  time_count+=1;
+       	  time_count+=1;
           rate.sleep();
+	  ros::spinOnce();
        }
     
 }
