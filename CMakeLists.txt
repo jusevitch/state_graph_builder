@@ -54,6 +54,7 @@ add_message_files(
   FILES
   graph.msg
   posegraph.msg
+  posestampedgraph.msg
 )
 
 ## Generate services in the 'srv' folder
