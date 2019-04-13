@@ -58,19 +58,12 @@ void Builder::ugvout_subCallback(const geometry_msgs::PoseStamped::ConstPtr& msg
 }
 void Builder::ugv2_subCallback(const geometry_msgs::Twist::ConstPtr& msgs, const int list_idx){
   ROS_INFO("I heard: [%lf]", msgs->linear.x);
-  // ugv_list2[list_idx].x=msgs->linear.x;
-  // ugv_list2[list_idx].y=0.0;
-  // ugv_list2[list_idx].z=msgs->angular.z;
+  ugv_list2[list_idx].x=msgs->linear.x;
+  ugv_list2[list_idx].y=0.0;
+  ugv_list2[list_idx].z=msgs->angular.z;
   
 }
 
-void Callback(const geometry_msgs::Twist::ConstPtr& msgs){//, const int list_idx){
-  ROS_INFO("I heard: [%lf]", msgs->linear.x);
-  // ugv_list2[list_idx].x=msgs->linear.x;
-  // ugv_list2[list_idx].y=0.0;
-  // ugv_list2[list_idx].z=msgs->angular.z;
-  
-}
 void Builder::uav_subCallback(const geometry_msgs::PointStamped::ConstPtr& msgs, const int list_idx){
   uav_list[list_idx].x = msgs->point.x;
   uav_list[list_idx].y = msgs->point.y;
@@ -89,6 +82,7 @@ Builder::Builder()
      uav_list.resize(n);
      ugv_list2.resize(n);
      ugv_list1.resize(n);
+     ugvout_list.resize(n);
      int id = 1;
 
      if (env==0)
