@@ -106,7 +106,7 @@ Builder::Builder()
        }
 	}
 	else{
-		std::vector<int> rovers = {3,4};
+		std::vector<int> rovers = {4,5};
 		for(int i=0; i< rovers.size(); i++) {
 		 	std::string sub_topic3 = "/R" + std::to_string(rovers[i]);
 		 	ugv_subout.push_back( nh.subscribe<geometry_msgs::PoseStamped>(sub_topic3, 10, boost::bind(&Builder::ugvout_subCallback,this,_1, i)) );
@@ -143,6 +143,7 @@ Builder::Builder()
 	  ros::spinOnce();
 	 }
 	 else{
+     ROS_INFO("Working");
 	   posetmsg.poses.clear();
 	   posetmsg.id.clear();
 	   posetmsg.time=time_count;
