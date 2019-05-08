@@ -106,8 +106,8 @@ Builder::Builder()
        }
 	}
 	else{
-		std::vector<int> rovers = {4,5,6};
-		for(int i=0; i<= rovers.size(); i++) {
+		std::vector<int> rovers = {3,4};
+		for(int i=0; i< rovers.size(); i++) {
 		 	std::string sub_topic3 = "/R" + std::to_string(rovers[i]);
 		 	ugv_subout.push_back( nh.subscribe<geometry_msgs::PoseStamped>(sub_topic3, 10, boost::bind(&Builder::ugvout_subCallback,this,_1, i)) );
        ROS_INFO("This worked for agent %d", rovers[i]);
