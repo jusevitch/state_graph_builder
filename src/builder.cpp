@@ -39,6 +39,8 @@ class Builder
   std::vector<ros::Subscriber> ugv_sub2;
   std::vector<ros::Subscriber> ugv_subout;
 
+  std::vector<double> rover_numbers_list;
+
   void ugv1_subCallback(const nav_msgs::Odometry::ConstPtr& msgs, const int list_idx);
   void ugv2_subCallback(const geometry_msgs::Twist::ConstPtr& msgs, const int list_idx);
   void ugvout_subCallback(const geometry_msgs::PoseStamped::ConstPtr& msgs, const int list_idx);
@@ -84,6 +86,7 @@ Builder::Builder()
      nh_private_.param<int>("n", n, 15);
     //  nh_private_.param<bool>("env",env,true); // env = 1 if outdoors. env = !gazebo.
      nh_private_.param<int>("gazebo",gazebo,0);
+     nh_private_.param<std::vector<double> >("rover_numbers_list", rover_numbers_list, std::vector<double>());
      uav_list.resize(n);
      ugv_list2.resize(n);
      ugv_list1.resize(n);
@@ -106,11 +109,12 @@ Builder::Builder()
        }
 	}
 	else{
-		std::vector<int> rovers = {4,5};
-		for(int i=0; i< rovers.size(); i++) {
-		 	std::string sub_topic3 = "/R" + std::to_string(rovers[i]);
+		// std::vector<int> rovers = {4,5,6};
+		for(int i=0; i< rover_numbers_list.size(); i++) {
+		 	std::string sub_topic3 = "/R" + std::to_string(static_cast<int>(rover_numbers_list[i]));
+      ROS_INFO("sub_topic: %s", sub_topic3.c_str());
 		 	ugv_subout.push_back( nh.subscribe<geometry_msgs::PoseStamped>(sub_topic3, 10, boost::bind(&Builder::ugvout_subCallback,this,_1, i)) );
-       ROS_INFO("This worked for agent %d", rovers[i]);
+       ROS_INFO("This worked for agent %d", rover_numbers_list[i]);
        }
      }
 
